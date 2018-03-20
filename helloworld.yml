@@ -1,0 +1,109 @@
+---
+
+#sudo ansible-playbook -i"inventory/dev" helloworld.yml --extra-vars "version=1.01.00 other_variable=foo"
+#cat /etc/passwd to see all users
+#cat /etc/group to see all groups
+- hosts: local
+  vars:
+    http_port: 8081
+    domains:
+       - "example.com"
+       - "ajconsulting.com"
+       - "rte.com"
+    totos:
+       - toto
+       - titi
+       - tata
+
+  tasks:
+    - name: print hello message
+      shell: echo "hello world {{ item }}"
+      with_items:
+       - "{{ domains }}"
+
+    - name: "Create group demo-ansible , too check compgen -g"
+      group: name=demo-ansible gid=1006 state=present
+
+    - name: "creation user demo-ansible, too check compgen -u"
+      user: 
+        name: demo-ansible
+        state: present
+        comment: "Compte demo-ansible"
+        groups: demo-ansible
+        password: demo-ansible
+
+
+    - name: creer un fichier
+      template: src=templates/somefile.j2 dest=/home/thales/dev
+
+    - name: Create directory /home/thales/dev/{{ version }}
+      file: path=/home/thales/dev/{{ version }} state=directory recurse=yes owner=demo-ansible group=demo-ansible mode=0777
+
+    - name: Create symbolic link /home/thales/dev/{{ version }}
+      file: src=/home/thales/dev/{{ version }} dest=/home/thales/dev/tmp state=link
+
+    - name: Create a file for demo
+      file: path=/home/thales/dev/{{ version }}/{{ item }}.txt state=touch
+      with_items:
+       - "{{ totos }}"
+    
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=latest
+      become: yes
+      become_user: root
+
+
+    - name: "Create directory for {{ item }}"
+      file: path=/var/www/{{ item }} state=directory 
+      with_items:
+       - "{{ domains }}"   
+
+    - name: "creer un fichier index.html pour le {{ item }}"
+      template: src=templates/index.html dest=/var/www/{{ item }}
+      with_items:
+       - "{{ domains }}" 
+
+
+    - name: "apache2 listen on port {{ http_port }}"
+      lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+
+    - name: apache2 virtualhost on port {{ http_port }}
+      lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:" line="<VirtualHost *:{{ http_port }}>" state=present backrefs=yes
+      notify:
+        - restart apache2
+
+    - name: create virtual host file
+      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ item }}.conf
+      with_items:
+       - "{{ domains }}"    
+
+    - name: "chmod directory for {{ version }}"
+      file: path=/home/thales/dev/{{ version }} owner=thales group=thales mode=0774
+
+    - name: a2ensite "{{ item }}"
+      command: a2ensite {{ item }}
+      args:
+        creates: /etc/apache2/sites-enabled/{{ item }}.conf
+      with_items:
+       - "{{ domains }}"    
+      notify:
+        - restart apache2
+
+
+
+
+
+#   - name: stop apache2
+#     service: name=apache2 state=stopped
+
+#   - name: restart apache2
+#     service: name=apache2 state=started
+
+#   - name: restart apache2
+#     service: name=apache2 state=restarted
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+
+    
