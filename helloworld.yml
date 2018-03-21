@@ -14,6 +14,16 @@
        - toto
        - titi
        - tata
+    demo_users:
+       usr30:
+          pwd: pkis
+          grp: demo-ansible
+       usr31:
+          pwd: pkgf
+          grp: demo-ansible
+    ftp_directories:
+       - { name: 'ftp1', mode: '0770', owner: 'thales' }
+       - { name: 'ftp2', mode: '0770', owner: 'thales' }
 
   tasks:
     - name: print hello message
@@ -52,18 +62,6 @@
       become: yes
       become_user: root
 
-
-    - name: "Create directory for {{ item }}"
-      file: path=/var/www/{{ item }} state=directory 
-      with_items:
-       - "{{ domains }}"   
-
-    - name: "creer un fichier index.html pour le {{ item }}"
-      template: src=templates/index.html dest=/var/www/{{ item }}
-      with_items:
-       - "{{ domains }}" 
-
-
     - name: "apache2 listen on port {{ http_port }}"
       lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
 
@@ -72,22 +70,24 @@
       notify:
         - restart apache2
 
-    - name: create virtual host file
-      template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ item }}.conf
+    - include_tasks: config_hosts.yml
       with_items:
-       - "{{ domains }}"    
+       - "{{ domains }}"   
+
+
+    - include_tasks: loop_create_ftp.yml
+      with_items:
+       - "{{ ftp_directories }}" 
 
     - name: "chmod directory for {{ version }}"
       file: path=/home/thales/dev/{{ version }} owner=thales group=thales mode=0774
 
-    - name: a2ensite "{{ item }}"
-      command: a2ensite {{ item }}
-      args:
-        creates: /etc/apache2/sites-enabled/{{ item }}.conf
-      with_items:
-       - "{{ domains }}"    
-      notify:
-        - restart apache2
+    - include: loop_create_users.yml
+      vars:
+        user_name: "{{item.key}}"
+        user_pwd: "{{item.value.pwd}}"
+        user_grp: "{{item.value.grp}}"
+      with_dict: "{{demo_users}}"
 
 
 

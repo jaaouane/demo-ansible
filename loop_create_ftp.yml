@@ -1,0 +1,5 @@
+---
+# tasks file for deploy-coreal-aggregation
+
+- name: Create directory /home/thales/tmp4/{{ item.name }}
+  file: path=/home/thales/dev/tmp4/{{ item.name }} state=directory recurse=yes owner={{ item.owner }} group=demo-ansible mode={{ item.mode }}

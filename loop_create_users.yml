@@ -1,0 +1,11 @@
+---
+# tasks file for deploy-coreal-aggregation
+
+- name: "creation users in loop, too check compgen -u"
+  user: 
+    name: "{{user_name}}"
+    state: present
+    comment: "Compte {{user_name}}"
+    groups: "{{user_grp}}"
+    shell: "/sbin/nologin"
+    password: "{{user_pwd}}"

@@ -1,0 +1,19 @@
+---
+
+
+- name: "Create directory for {{ item }}"
+  file: path=/var/www/{{ item }} state=directory   
+
+- name: "creer un fichier index.html pour le {{ item }}"
+  template: src=templates/index.html dest=/var/www/{{ item }}
+
+
+- name: create virtual host file
+  template: src=virtualhost.conf dest=/etc/apache2/sites-available/{{ item }}.conf
+
+- name: a2ensite "{{ item }}"
+  command: a2ensite {{ item }}
+  args:
+     creates: /etc/apache2/sites-enabled/{{ item }}.conf   
+  notify:
+     - restart apache2
