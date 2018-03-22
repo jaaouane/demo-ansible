@@ -62,6 +62,11 @@
       become: yes
       become_user: root
 
+
+#apt: name={{item}} update_cache=yes state=latest: si on veut lancer en boucle
+#when: user is defined : pour filtrer des taches
+
+
     - name: "apache2 listen on port {{ http_port }}"
       lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
 
