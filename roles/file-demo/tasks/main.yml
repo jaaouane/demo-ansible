@@ -1,0 +1,20 @@
+---
+
+
+- name: creer un fichier
+  template: src=templates/somefile.j2 dest=/home/thales/dev
+
+- name: Create directory /home/thales/dev/{{ version }}
+  file: path=/home/thales/dev/{{ version }} state=directory recurse=yes owner=demo-ansible group=demo-ansible mode=0777
+
+- name: Create symbolic link /home/thales/dev/{{ version }}
+  file: src=/home/thales/dev/{{ version }} dest=/home/thales/dev/tmp state=link
+
+- name: Create a file for demo
+  file: path=/home/thales/dev/{{ version }}/{{ item }}.txt state=touch
+  with_items:
+    - "{{ totos }}"
+    
+- include_tasks: loop_create_ftp.yml
+  with_items:
+    - "{{ ftp_directories }}" 

@@ -1,0 +1,12 @@
+---
+
+- name: "chmod directory for {{ version }}"
+  file: path=/home/thales/dev/{{ version }} owner=thales group=thales mode=0774
+
+- include_tasks: loop_create_users.yml
+  vars:
+    user_name: "{{item.key}}"
+    user_pwd: "{{item.value.pwd}}"
+    user_grp: "{{item.value.grp}}"
+  with_dict: "{{demo_users}}"
+

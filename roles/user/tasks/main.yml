@@ -1,0 +1,19 @@
+---
+
+
+- name: print hello message
+  shell: echo "hello world {{ item }}"
+  with_items:
+    - "{{ domains }}"
+
+- name: "Create group demo-ansible , too check compgen -g"
+  group: name=demo-ansible gid=1006 state=present
+
+- name: "creation user demo-ansible, too check compgen -u"
+  user: 
+     name: demo-ansible
+     state: present
+     comment: "Compte demo-ansible"
+     groups: demo-ansible
+     password: demo-ansible
+
