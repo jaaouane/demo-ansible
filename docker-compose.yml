@@ -1,0 +1,14 @@
+version: '2.0'
+services:
+  config-server:
+    image: jenkinsci/blueocean
+    user: root
+    container_name: jenkins_blueocean
+    ports:
+     - "9080:8080"
+     - "50000:50000"
+    volumes:
+     - "/usr/bin/ansible:/usr/bin/ansible" 
+     - "/home/thales/jenkins3:/var/jenkins_home"
+    environment:
+     - M2_HOME='/opt/apache-maven-3.3.9'
