@@ -4,6 +4,7 @@ node {
     echo 'Hello World' 
     
     stage ('Checkout scm') {
+        checkout scm
     }
     
     stage ('Initialize') {
