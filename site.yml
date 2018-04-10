@@ -9,3 +9,14 @@
 
   - name: Create directory /home/thales/demodemo
     file: path=/home/thales/demodemo state=directory recurse=yes owner=thales group=thales mode=0777
+
+  - name: "Create group demo-ansible , too check compgen -g"
+    group: name=demo-demo state=present
+
+  - name: "creation user demo-ansible, too check compgen -u"
+    user: 
+     name: demo-demo
+     state: present
+     comment: "Compte demo-demo"
+     groups: demo-demo
+     password: demo-demo
