@@ -11,7 +11,7 @@ node {
               
         echo "HELLO WORLD"
 
-        ansiblePlaybook installation: 'ansible', inventory: 'inventory/dev', playbook: 'site.yml'
+        ansiblePlaybook installation: 'ansible', inventory: 'inventory/host', playbook: 'site.yml'
 
     }
 
