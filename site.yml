@@ -6,3 +6,6 @@
  
   - name: Hello World!
     shell: echo "Hi! Tower is working."
+
+  - name: Create directory /home/thales/demodemo
+    file: path=/home/thales/demodemo state=directory recurse=yes owner=thales group=thales mode=0777
